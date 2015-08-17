@@ -1,0 +1,4 @@
+output-qemu
+packer_cache
+*.swp
+*.swo

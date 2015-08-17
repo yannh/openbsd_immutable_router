@@ -1,0 +1,158 @@
+---
+- hosts: all
+  vars:
+    nameservers: ['8.8.8.8', '8.8.4.4']
+    ntp_pool: 'de.pool.ntp.org'
+    wpa_key: ''
+    pppoe_authname: ''
+    pppoe_authkey: ''
+    files_folder: '/tmp/files'
+    templates_folder: '/tmp/templates'
+    pkg_path: 'http://ftp.eu.openbsd.org/pub/OpenBSD/snapshots/packages/amd64/'
+    user: 'myuser'
+    email: ''
+    dtdns_domain: ''
+    dtdns_password: ''
+
+  tasks:
+  - name: Installs common packages
+    openbsd_pkg: name="{{item}}" state='present'
+    environment:
+      PKG_PATH: "{{ pkg_path }}"
+    with_items:
+      - 'vim-7.4.769-no_x11'
+      - 'wget'
+      - 'curl'
+      - 'zsh'
+      - 'wol'
+      - 'links'
+
+  - name: Create dev-src folder
+    file: state="directory" path="/dev-src" owner="root" group="wheel"
+
+  - name: Copy makedev file
+    command: cp /dev/MAKEDEV /dev-src/MAKEDEV
+
+  - name: Populate /dev-src
+    command: chdir="/dev-src" ./MAKEDEV all
+
+  - name: Ensure user is present
+    user: name='{{user}}' state='present' groups='wheel' shell='/usr/local/bin/zsh'
+
+  - name: Adds SSH authorized key for the main user
+    authorized_key: user='{{user}}' key="{{item}}"
+    with_file:
+      - "{{files_folder}}/authorized_keys"
+
+  - name: Sets timezone to Europe/Berlin
+    file: state='link' src='/usr/share/zoneinfo/Europe/Berlin' dest='/etc/localtime'
+
+  - name: Sets keyboard type
+    copy: src='{{files_folder}}/kbdtype' dest='/etc/kbdtype' owner='root' group='wheel' mode='0644'
+
+  - name: Redirect console to com0
+    lineinfile: dest='/etc/boot.conf' regexp='^set tty' line='set tty com0' create='yes'
+
+  - name: Set com0 speed
+    lineinfile: dest='/etc/boot.conf' regexp='^stty com0' line='stty com0 115200' create='yes'
+
+  - name: Allows logins from serial console
+    lineinfile: dest='/etc/ttys' regexp='^tty00' line='tty00   "/usr/libexec/getty std.115200" vt220   on  secure'
+
+  - name: Set interfaces up
+    copy: src='{{files_folder}}/hostname.emx' dest="/etc/hostname.{{item}}" owner="root" group="wheel" mode="0640"
+    with_items:
+      - 'em0'
+      - 'em2'
+      - 'em3'
+
+  - name: Static network for VOIP network
+    copy: src='{{files_folder}}/hostname.em1' dest="/etc/hostname.em1" owner="root" group="wheel" mode="0640"
+
+  - name: Define bridge
+    copy: src='{{files_folder}}/hostname.bridge0' dest='/etc/hostname.bridge0' owner='root' group='wheel' mode='0640'
+
+  - name: Setup pppoe connection
+    template: src='{{templates_folder}}/hostname.pppoe0.j2' dest='/etc/hostname.pppoe0' owner='root' group='wheel' mode='0640'
+
+  - name: Setup Wifi Access Point
+    copy: src='{{files_folder}}/hostname.ral0' dest='/etc/hostname.ral0' owner='root' group='wheel' mode='0640'
+
+  - name: Setup virtual IP on bridge
+    copy: src='{{files_folder}}/hostname.vether0' dest='/etc/hostname.vether0' owner='root' group='wheel' mode='0640'
+
+  - name: Set hostname
+    copy: src='{{files_folder}}/myname' dest='/etc/myname' owner='root' group='wheel' mode='0644'
+
+  - name: Enable services
+    lineinfile: dest="/etc/rc.conf.local" regexp="^{{item.name}}_flags=" line="{{item.name}}_flags=\"{{item.flags}}\"" create="yes"
+    with_items:
+      - { name: 'sshd',   flags: '' }
+      - { name: 'named',  flags: '' }
+      - { name: 'ntpd',   flags: '-s' }
+      - { name: 'dhcpd',  flags: 'vether0' }
+      - { name: 'sndiod', flags: '' }
+      - { name: 'inetd',  flags: '' }
+      - { name: 'syslogd',  flags: '-u' }
+
+  - name: Enable PF
+    lineinfile: dest='/etc/rc.conf.local' regexp='^pf=' line='pf="YES"'
+
+  - name: Copy pf config
+    copy: src='{{files_folder}}/pf.conf' dest='/etc/pf.conf' owner='root' group='wheel' mode='0600'
+
+  # Small hack to get the colon, cf https://github.com/ansible/ansible/issues/1341
+  - name: Forwards mail for root
+    lineinfile: dest='/etc/mail/aliases' regexp='^(#\ +)?root:' line="root{{':'}} {{email}}"
+
+  - name: Define DNS resolvers
+    template: src='{{templates_folder}}/resolv.conf.j2' dest='/etc/resolv.conf'
+
+  - name: Configure NTP
+    template: src='{{templates_folder}}/ntpd.conf.j2' dest='/etc/ntpd.conf'
+
+  - name: Copy sshd config
+    copy: src='{{files_folder}}/sshd_config' dest='/etc/ssh/sshd_config'
+
+  - name: Copy ssh config
+    copy: src='{{files_folder}}/ssh_config' dest='/etc/ssh/ssh_config'
+
+  - name: Copy dhcpd configuration file
+    copy: src='{{files_folder}}/dhcpd.conf' dest='/etc/dhcpd.conf'
+
+  - name: Permit forwarding (routing) of IPv4 packets
+    lineinfile: dest='/etc/sysctl.conf' regexp='net.inet.ip.forwarding' line='net.inet.ip.forwarding=1' create='yes'
+
+  - name: Copy DTDNS script
+    template: src='{{files_folder}}/dtdns.sh' dest='/usr/local/bin/dtdns.sh' owner='root' group='wheel' mode='0755'
+
+  - name: Create configuration folder for DTDNS script
+    file: path='/etc/dtdns' state='directory' owner='root' group='wheel' mode='0750'
+
+  - name: Copy dtdns config file
+    template: src='{{templates_folder}}/dtdns.conf.j2' dest='/etc/dtdns/dtdns.conf' owner='root' group='wheel' mode='0640'
+
+  - name: Copy SSL certificate for www.dtdns.com
+    copy: src='{{files_folder}}/www.dtdns.com.pem' dest='/etc/dtdns/www.dtdns.com.pem' owner='root' group='wheel' mode='0640'
+
+  - name: Setup cronjob for DTDNS script
+    cron: minute='*/5' job='/usr/local/bin/dtdns.sh >> /dev/null 2>&1' name='DTDNS updater script' user='root'
+
+  - name: Create bin folder for the user
+    file: path="/home/{{user}}/bin" state='directory' owner='{{user}}' group='{{user}}' mode='0755'
+
+  - name: Create zshrc for the user
+    copy: src='{{files_folder}}/zshrc' dest="/home/{{user}}/.zshrc" owner='{{user}}' group='{{user}}' mode='0644'
+
+  - name: Sets noatime and softdep on root partition
+    lineinfile: dest='/etc/fstab' backrefs='yes' regexp='^([0-9a-f]{16}\.[a-z]{1})\ / ' line='\1 / ffs rw,noatime,softdep 1 1'
+
+  - name: Create vimrc for the user
+    copy: src='{{files_folder}}/vimrc' dest="/home/{{user}}/.vimrc" owner="{{user}}" group="{{user}}" mode='0644'
+
+  - name: Ensure wake on lan script is present
+    copy: src='{{files_folder}}/wol.sh' dest='/home/{{user}}/bin/wol.sh' owner="{{user}}" group="{{user}}" mode='0755'
+
+  - name: Copies fstab
+    copy: src="{{files_folder}}/fstab" dest='/etc/fstab' owner='root' group='wheel' mode='0644'
+
