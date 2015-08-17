@@ -14,3 +14,7 @@ the full state of the system.
 This repository has been made public for educational purposes, to provide an example of a 
 working "immutable server", and inspire people to start working on similar architectures. It can
 also serve as a good read on the basic configuration of OpenBSD as a router.
+
+Use "packer" to generate the image file:
+
+    packer build openbsd.json
