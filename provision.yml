@@ -88,7 +88,7 @@
     lineinfile: dest="/etc/rc.conf.local" regexp="^{{item.name}}_flags=" line="{{item.name}}_flags=\"{{item.flags}}\"" create="yes"
     with_items:
       - { name: 'sshd',   flags: '' }
-      - { name: 'named',  flags: '' }
+      - { name: 'unbound',  flags: '-c /etc/unbound.conf' }
       - { name: 'ntpd',   flags: '-s' }
       - { name: 'dhcpd',  flags: 'vether0' }
       - { name: 'sndiod', flags: '' }
@@ -100,6 +100,12 @@
 
   - name: Copy pf config
     copy: src='{{files_folder}}/pf.conf' dest='/etc/pf.conf' owner='root' group='wheel' mode='0600'
+
+  - name: Enable doas
+    copy: src='{{files_folder}}/doas.conf' dest='/etc/doas.conf' owner='root' group='wheel' mode='0600'
+
+  - name: Configure unbound
+    copy: src='{{files_folder}}/unbound.conf' dest='/etc/unbound.conf' owner='root' group='wheel' mode='0644'
 
   # Small hack to get the colon, cf https://github.com/ansible/ansible/issues/1341
   - name: Forwards mail for root
