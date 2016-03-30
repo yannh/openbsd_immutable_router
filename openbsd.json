@@ -1,54 +1,47 @@
 {
-  "variables": {
-    "hostname": "tor",
-    "mirror": "ftp.eu.openbsd.org",
-    "user": "myuser",
-    "password": "password"
-  },
   "builders": [
     {
       "type": "qemu",
       "accelerator": "kvm",
-      "boot_wait": "20s",
+      "boot_wait": "30s",
       "disk_interface": "virtio",
       "disk_size": 2048,
       "format": "raw",
       "headless": false,
-      "iso_checksum": "9f0a94277f655e248f9bae69f8090088",
-      "iso_checksum_type": "md5",
-      "iso_url": "http://{{user `mirror`}}/pub/OpenBSD/snapshots/amd64/install58.iso",
+      "iso_url": "http://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/{{user `architecture`}}/install59.iso",
+      "iso_checksum": "685262fc665425c61a2952b2820389a2d331ac5558217080e6d564d2ce88eecb",
+      "iso_checksum_type": "sha256",
       "net_device": "e1000",
       "qemuargs": [
         ["-m", "1024m"]
       ],
       "shutdown_command": "halt -p",
       "ssh_username": "root",
-      "ssh_password": "{{user `password`}}",
+      "ssh_password": "{{user `root_password`}}",
       "ssh_port": 22,
-      "ssh_wait_timeout": "10000s",
-      "vm_name": "{{ user `hostname` }}",
-      "http_directory": "files",
+      "ssh_wait_timeout": "1200s",
+      "vm_name": "{{user `hostname`}}",
+      "http_directory": "packer_http",
       "boot_command": [
         "S<enter>",
         "cat <<EOF >>install.conf<enter>",
-        "Choose your keyboard layout = us<enter>",
-        "System hostname =  {{ user `hostname`}}<enter>",
-        "Password for root = {{user `password`}}<enter>",
+        "Choose your keyboard layout = {{user `keyboard_layout`}}<enter>",
+        "System hostname = {{user `hostname`}}<enter>",
+        "Password for root = {{user `root_password`}}<enter>",
         "Start sshd(8) by default = yes<enter>",
-        "Start ntpd(8) by default = yes<enter>",
         "Do you expect to run the X Window System = no<enter>",
         "Change the default console to com0 = yes<enter>",
         "Which speed should com0 use = 115200<enter>",
         "Setup a user = {{user `user`}}<enter>",
-        "Password for user {{user `user`}} = {{user `password`}}<enter>",
+        "Full name for user {{user `user`}} = {{user `user_full_name`}}<enter>",
+        "Password for user {{user `user`}} = {{user `user_password`}}<enter>",
         "Allow root ssh login = yes<enter>",
-        "What timezone are you in = Europe/Berlin<enter>",
+        "What timezone are you in = {{user `timezone`}}<enter>",
         "Location of sets = http<enter>",
-        "HTTP Server = {{user `mirror`}}<enter>",
-        "Server directory = pub/OpenBSD/snapshots/amd64<enter>",
+        "HTTP Server = {{user `openbsd_mirror`}}<enter>",
+        "Server directory = {{user `openbsd_mirror_directory`}}/{{user `architecture`}}<enter>",
         "Set name(s) = -comp*.tgz -game*.tgz -x* +bsd.mp<enter>",
         "Cannot determine prefetch area. Continue without verification = yes <enter>",
-        "Directory does not contain SHA256.sig. Continue without verification = yes <enter>",
         "URL to autopartitioning template = http://{{ .HTTPIP }}:{{ .HTTPPort }}/autodisklabel<enter>",
         "EOF<enter>",
         "install -af install.conf && reboot<enter>"
@@ -58,8 +51,8 @@
   "provisioners": [
     {
       "type": "shell",
-      "environment_vars": ["PKG_PATH=ftp://{{user `mirror`}}/pub/OpenBSD/snapshots/packages/amd64/"],
-      "inline": ["pkg_add ansible python-2.7.10", "ln -s /usr/local/bin/python2.7 /usr/bin/python"]
+      "environment_vars": ["PKG_PATH=http://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/packages/{{user `architecture`}}/"],
+      "inline": ["pkg_add ansible python-2.7.11", "ln -s /usr/local/bin/python2.7 /usr/bin/python"]
     },
     {
       "type": "file",
@@ -72,8 +65,14 @@
       "destination": "/tmp"
     },
     {
+      "type": "file",
+      "source": "config.json",
+      "destination": "/tmp/config.json"
+    },
+    {
       "type": "ansible-local",
-      "playbook_file": "provision.yml"
+      "playbook_file": "provision.yml",
+      "extra_arguments": ["--diff"]
     }
   ]
 }

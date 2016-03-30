@@ -1,0 +1,20 @@
+{
+    "hostname": "",
+    "architecture": "amd64",
+    "keyboard_layout": "us",
+    "root_password": "",
+    "user": "",
+    "user_full_name": "",
+    "user_password": "",
+    "email": "",
+    "openbsd_mirror": "ftp.eu.openbsd.org",
+    "openbsd_mirror_directory": "pub/OpenBSD/5.9",
+    "timezone": "Europe/Berlin",
+    "ntp_pool": "de.pool.ntp.org",
+    "pppoe_authname": "",
+    "pppoe_authkey": "",
+    "files_folder": "/tmp/files",
+    "templates_folder": "/tmp/templates",
+    "dtdns_domain": "",
+    "dtdns_password": ""
+}

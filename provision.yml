@@ -1,26 +1,18 @@
 ---
 - hosts: all
   vars:
-    nameservers: ['8.8.8.8', '8.8.4.4']
-    ntp_pool: 'de.pool.ntp.org'
-    wpa_key: ''
-    pppoe_authname: ''
-    pppoe_authkey: ''
-    files_folder: '/tmp/files'
-    templates_folder: '/tmp/templates'
-    pkg_path: 'http://ftp.eu.openbsd.org/pub/OpenBSD/snapshots/packages/amd64/'
-    user: 'myuser'
-    email: ''
-    dtdns_domain: ''
-    dtdns_password: ''
+    nameservers: ["8.8.8.8", "8.8.4.4"]
 
   tasks:
+  - name: load variables
+    include_vars: "/tmp/config.json"
+
   - name: Installs common packages
     openbsd_pkg: name="{{item}}" state='present'
     environment:
-      PKG_PATH: "{{ pkg_path }}"
+      PKG_PATH: "http://{{ openbsd_mirror }}/{{ openbsd_mirror_directory }}/packages/{{ architecture }}/"
     with_items:
-      - 'vim-7.4.769-no_x11'
+      - 'vim-7.4.900-no_x11'
       - 'wget'
       - 'curl'
       - 'zsh'
@@ -45,7 +37,7 @@
       - "{{files_folder}}/authorized_keys"
 
   - name: Sets timezone to Europe/Berlin
-    file: state='link' src='/usr/share/zoneinfo/Europe/Berlin' dest='/etc/localtime'
+    file: state='link' src='/usr/share/zoneinfo/{{timezone}}' dest='/etc/localtime'
 
   - name: Sets keyboard type
     copy: src='{{files_folder}}/kbdtype' dest='/etc/kbdtype' owner='root' group='wheel' mode='0644'
@@ -75,8 +67,8 @@
   - name: Setup pppoe connection
     template: src='{{templates_folder}}/hostname.pppoe0.j2' dest='/etc/hostname.pppoe0' owner='root' group='wheel' mode='0640'
 
-  - name: Setup Wifi Access Point
-    copy: src='{{files_folder}}/hostname.ral0' dest='/etc/hostname.ral0' owner='root' group='wheel' mode='0640'
+  # - name: Setup Wifi Access Point
+  #   copy: src='{{files_folder}}/hostname.ral0' dest='/etc/hostname.ral0' owner='root' group='wheel' mode='0640'
 
   - name: Setup virtual IP on bridge
     copy: src='{{files_folder}}/hostname.vether0' dest='/etc/hostname.vether0' owner='root' group='wheel' mode='0640'
