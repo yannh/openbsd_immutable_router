@@ -18,3 +18,5 @@ also serve as a good read on the basic configuration of OpenBSD as a router.
 Use "packer" to generate the image file:
 
     packer build -var-file=config.json openbsd.json
+
+Also a source of inspiration: https://github.com/tmatilai/packer-openbsd 
