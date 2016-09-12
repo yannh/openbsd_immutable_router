@@ -12,7 +12,7 @@
     environment:
       PKG_PATH: "http://{{ openbsd_mirror }}/{{ openbsd_mirror_directory }}/packages/{{ architecture }}/"
     with_items:
-      - 'vim-7.4.900-no_x11'
+      - 'vim-7.4.1467p1-no_x11'
       - 'wget'
       - 'curl'
       - 'zsh'
