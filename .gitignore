@@ -1,5 +1,6 @@
 output-qemu
 packer_cache
 config.json
+files/config.yml
 *.swp
 *.swo
