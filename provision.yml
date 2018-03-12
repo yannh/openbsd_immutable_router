@@ -59,11 +59,12 @@
       - 'em3'
       - 'vlan7'
 
-  - name: Static network for VOIP network
-    copy: src='{{files_folder}}/hostname.em1' dest="/etc/hostname.em1" owner="root" group="wheel" mode="0640"
-
-  - name: Define bridge
-    copy: src='{{files_folder}}/hostname.bridge0' dest='/etc/hostname.bridge0' owner='root' group='wheel' mode='0640'
+  - name: Copy interfaces files
+    copy: src='{{files_folder}}/hostname.{{item}}' dest="/etc/hostname.{{item}}" owner="root" group="wheel" mode="0640"
+    with_items:
+      - 'bridge0'
+      - 'em1'
+      - 'vlan7'
 
   - name: Setup pppoe connection
     template: src='{{templates_folder}}/hostname.pppoe0.j2' dest='/etc/hostname.pppoe0' owner='root' group='wheel' mode='0640'
