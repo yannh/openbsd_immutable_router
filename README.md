@@ -15,8 +15,8 @@ This repository has been made public for educational purposes, to provide an exa
 working "immutable server", and inspire people to start working on similar architectures. It can
 also serve as a good read on the basic configuration of OpenBSD as a router.
 
-Use "packer" to generate the image file:
+Use make to generate the image file:
 
-    packer build -var-file=config.json openbsd.json
+    make build
 
 Also a source of inspiration: https://github.com/tmatilai/packer-openbsd
