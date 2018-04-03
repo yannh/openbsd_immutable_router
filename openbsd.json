@@ -8,8 +8,8 @@
       "disk_size": 2048,
       "format": "raw",
       "headless": false,
-      "iso_url": "http://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/{{user `architecture`}}/install62.iso",
-      "iso_checksum": "b7994d29c7db3087db65158901d700fb7d10500b9b7496c1d86b285cabce0a2b",
+      "iso_url": "http://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/{{user `architecture`}}/install63.iso",
+      "iso_checksum_url": "https://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/{{user `architecture`}}/SHA256",
       "iso_checksum_type": "sha256",
       "qemuargs": [
         ["-m", "1024m"]
@@ -51,7 +51,7 @@
     {
       "type": "shell",
       "environment_vars": ["PKG_PATH=http://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/packages/{{user `architecture`}}/"],
-      "inline": ["pkg_add ansible python%2.7", "ln -s /usr/local/bin/python2.7 /usr/bin/python"]
+      "inline": ["pkg_add ansible python%2.7", "rm -f /usr/bin/python", "ln -s /usr/local/bin/python2.7 /usr/bin/python"]
     },
     {
       "type": "file",

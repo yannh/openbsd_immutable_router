@@ -19,4 +19,4 @@ Use "packer" to generate the image file:
 
     packer build -var-file=config.json openbsd.json
 
-Also a source of inspiration: https://github.com/tmatilai/packer-openbsd 
+Also a source of inspiration: https://github.com/tmatilai/packer-openbsd

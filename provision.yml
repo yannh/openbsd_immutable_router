@@ -1,11 +1,15 @@
 ---
 - hosts: all
   vars:
-    nameservers: ["8.8.8.8", "8.8.4.4"]
+    nameservers: ["1.1.1.1", "1.0.0.1"]
 
   tasks:
   - name: load variables
     include_vars: "/tmp/config.json"
+
+  # Silently fails?
+  # - name: Apply all available patches
+  #   command: /usr/sbin/syspatch
 
   - name: Installs common packages
     openbsd_pkg: name="{{item}}" state='present'
@@ -57,7 +61,6 @@
       - 'em0'
       - 'em2'
       - 'em3'
-      - 'vlan7'
 
   - name: Copy interfaces files
     copy: src='{{files_folder}}/hostname.{{item}}' dest="/etc/hostname.{{item}}" owner="root" group="wheel" mode="0640"
@@ -86,7 +89,6 @@
       - { name: 'ntpd',   flags: '-s' }
       - { name: 'dhcpd',  flags: 'vether0' }
       - { name: 'sndiod', flags: '' }
-      - { name: 'inetd',  flags: '' }
       - { name: 'syslogd',  flags: '-u' }
 
   - name: Enable PF
