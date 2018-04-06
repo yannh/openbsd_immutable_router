@@ -1,6 +1,6 @@
 /dev/sd1a / ffs ro,noatime,softdep 1 1
-swap /dev mfs rw,nosuid,-P=/dev-src,-i=128,-s=8M 0 0
+swap /dev mfs rw,nosuid,noexec,-P=/dev-src,-i=128,-s=8M 0 0
 swap /home mfs rw,nodev,nosuid,-P=/dev/sd1e,-s=256M 0 0
 swap /root mfs rw,nodev,nosuid,-P=/dev/sd1b,-s=64M 0 0
-swap /var mfs rw,nodev,nosuid,-P=/dev/sd1d,-s=64M 0 0
-swap /tmp mfs rw,nodev,nosuid,-s=64M 0 0
+swap /var mfs rw,nodev,nosuid,noexec,-P=/dev/sd1d,-s=64M 0 0
+swap /tmp mfs rw,nodev,nosuid,noexec,-s=64M 0 0

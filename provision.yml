@@ -7,9 +7,9 @@
   - name: load variables
     include_vars: "/tmp/config.json"
 
-  # Silently fails?
-  # - name: Apply all available patches
-  #   command: /usr/sbin/syspatch
+  - name: Apply all available patches
+    command: /usr/sbin/syspatch
+    ignore_errors: yes # Fails when no patches avail. Bug reported
 
   - name: Installs common packages
     openbsd_pkg: name="{{item}}" state='present'
