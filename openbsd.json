@@ -72,6 +72,10 @@
       "type": "ansible-local",
       "playbook_file": "provision.yml",
       "extra_arguments": ["--diff"]
+    },
+    {
+      "type": "shell",
+      "inline": ["rm -rf /root/.ansible /root/.ssh"]
     }
   ]
 }
