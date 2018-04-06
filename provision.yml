@@ -148,7 +148,7 @@
     copy: src='{{files_folder}}/zshrc' dest="/home/{{user}}/.zshrc" owner='{{user}}' group='{{user}}' mode='0644'
 
   - name: Sets noatime and softdep on root partition
-    lineinfile: dest='/etc/fstab' backrefs='yes' regexp='^([0-9a-f]{16}\.[a-z]{1})\ / ' line='\1 / ffs rw,noatime,softdep 1 1'
+    lineinfile: dest='/etc/fstab' backrefs='yes' regexp='^([0-9a-f]{16}\.[a-z]{1})\ / ' line='\1 / ffs rw,noatime,softdep 0 0'
 
   - name: Create vimrc for the user
     copy: src='{{files_folder}}/vimrc' dest="/home/{{user}}/.vimrc" owner="{{user}}" group="{{user}}" mode='0644'
