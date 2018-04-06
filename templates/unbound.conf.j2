@@ -19,3 +19,9 @@ remote-control:
   control-enable: no
   control-use-cert: no
   control-interface: /var/run/unbound.sock
+
+forward-zone:
+  name: "."
+{% for nameserver in nameservers %}
+  forward-addr: {{ nameserver }}
+{% endfor %}

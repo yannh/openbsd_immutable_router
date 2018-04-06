@@ -102,14 +102,14 @@
     copy: src='{{files_folder}}/doas.conf' dest='/etc/doas.conf' owner='root' group='wheel' mode='0600'
 
   - name: Configure unbound
-    copy: src='{{files_folder}}/unbound.conf' dest='/etc/unbound.conf' owner='root' group='wheel' mode='0644'
+    template: src='{{templates_folder}}/unbound.conf.j2' dest='/etc/unbound.conf' owner='root' group='wheel' mode='0644'
 
   # Small hack to get the colon, cf https://github.com/ansible/ansible/issues/1341
   - name: Forwards mail for root
     lineinfile: dest='/etc/mail/aliases' regexp='^(#\ +)?root:' line="root{{':'}} {{email}}"
 
   - name: Define DNS resolvers
-    template: src='{{templates_folder}}/resolv.conf.j2' dest='/etc/resolv.conf'
+    copy: src='{{files_folder}}/resolv.conf' dest='/etc/resolv.conf'
 
   - name: Configure NTP
     template: src='{{templates_folder}}/ntpd.conf.j2' dest='/etc/ntpd.conf'
