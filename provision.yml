@@ -22,6 +22,7 @@
       - 'zsh'
       - 'wol'
       - 'links'
+      - 'login_duo'
 
   - name: Create dev-src folder
     file: state="directory" path="/dev-src" owner="root" group="wheel"
@@ -160,3 +161,6 @@
 
   - name: Removes configuration for virtio NIC used during installation
     file: name="/etc/hostname.vio0" state="absent"
+
+  - name: Configure Duo
+    template: src='{{templates_folder}}/login_duo.conf.j2' dest='/etc/login_duo.conf' owner='sshd' group='wheel' mode='0600'
