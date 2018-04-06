@@ -1,0 +1,6 @@
+---
+- name: Sets noatime and softdep on root partition
+  lineinfile: dest='/etc/fstab' backrefs='yes' regexp='^([0-9a-f]{16}\.[a-z]{1})\ / ' line='\1 / ffs rw,noatime,softdep 0 0'
+
+- name: Copies fstab
+  copy: src="{{files_folder}}/fstab" dest='/etc/fstab' owner='root' group='wheel' mode='0644'

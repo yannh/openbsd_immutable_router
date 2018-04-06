@@ -1,0 +1,15 @@
+---
+- name: Copy DTDNS script
+  template: src='{{files_folder}}/dtdns.sh' dest='/usr/local/bin/dtdns.sh' owner='root' group='wheel' mode='0755'
+
+- name: Create configuration folder for DTDNS script
+  file: path='/etc/dtdns' state='directory' owner='root' group='wheel' mode='0750'
+
+- name: Copy dtdns config file
+  template: src='{{templates_folder}}/dtdns.conf.j2' dest='/etc/dtdns/dtdns.conf' owner='root' group='wheel' mode='0640'
+
+- name: Copy SSL certificate for www.dtdns.com
+  copy: src='{{files_folder}}/www.dtdns.com.pem' dest='/etc/dtdns/www.dtdns.com.pem' owner='root' group='wheel' mode='0640'
+
+- name: Setup cronjob for DTDNS script
+  cron: minute='*/5' job='/usr/local/bin/dtdns.sh >> /dev/null 2>&1' name='DTDNS updater script' user='root'

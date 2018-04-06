@@ -1,0 +1,21 @@
+---
+- name: Ensure user is present
+  user: name='{{user}}' state='present' groups='wheel' shell='/usr/local/bin/zsh'
+
+- name: Adds SSH authorized key for the main user
+  authorized_key: user='{{user}}' key="{{item}}"
+  with_file:
+    - "{{files_folder}}/authorized_keys"
+
+- name: Create bin folder for the user
+  file: path="/home/{{user}}/bin" state='directory' owner='{{user}}' group='{{user}}' mode='0755'
+
+- name: Create zshrc for the user
+  copy: src='{{files_folder}}/zshrc' dest="/home/{{user}}/.zshrc" owner='{{user}}' group='{{user}}' mode='0644'
+
+- name: Create vimrc for the user
+  copy: src='{{files_folder}}/vimrc' dest="/home/{{user}}/.vimrc" owner="{{user}}" group="{{user}}" mode='0644'
+
+- name: Ensure wake on lan script is present
+  copy: src='{{files_folder}}/wol.sh' dest='/home/{{user}}/bin/wol.sh' owner="{{user}}" group="{{user}}" mode='0755'
+

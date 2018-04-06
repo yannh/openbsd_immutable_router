@@ -1,0 +1,35 @@
+---
+- name: Set interfaces up
+  copy: src='{{files_folder}}/hostname.emx' dest="/etc/hostname.{{item}}" owner="root" group="wheel" mode="0640"
+  with_items:
+    - 'em0'
+    - 'em2'
+    - 'em3'
+
+- name: Copy interfaces files
+  copy: src='{{files_folder}}/hostname.{{item}}' dest="/etc/hostname.{{item}}" owner="root" group="wheel" mode="0640"
+  with_items:
+    - 'bridge0'
+    - 'em1'
+    - 'vlan7'
+
+- name: Setup pppoe connection
+  template: src='{{templates_folder}}/hostname.pppoe0.j2' dest='/etc/hostname.pppoe0' owner='root' group='wheel' mode='0640'
+
+- name: Setup virtual IP on bridge
+  copy: src='{{files_folder}}/hostname.vether0' dest='/etc/hostname.vether0' owner='root' group='wheel' mode='0640'
+
+- name: Removes configuration for virtio NIC used during installation
+  file: name="/etc/hostname.vio0" state="absent"
+
+- name: Enable PF
+  lineinfile: dest='/etc/rc.conf.local' regexp='^pf=' line='pf="YES"'
+
+- name: Copy pf config
+  copy: src='{{files_folder}}/pf.conf' dest='/etc/pf.conf' owner='root' group='wheel' mode='0600'
+
+- name: Permit forwarding (routing) of IPv4 packets
+  lineinfile: dest='/etc/sysctl.conf' regexp='net.inet.ip.forwarding' line='net.inet.ip.forwarding=1' create='yes'
+
+# - name: Setup Wifi Access Point
+#   copy: src='{{files_folder}}/hostname.ral0' dest='/etc/hostname.ral0' owner='root' group='wheel' mode='0640'

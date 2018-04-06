@@ -71,6 +71,9 @@
     {
       "type": "ansible-local",
       "playbook_file": "provision.yml",
+      "playbook_dir": "ansible",
+      "staging_directory": "/tmp/ansible",
+      "clean_staging_directory": true,
       "extra_arguments": ["--diff"]
     },
     {

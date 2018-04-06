@@ -1,0 +1,28 @@
+---
+- name: Enable services
+  lineinfile: dest="/etc/rc.conf.local" regexp="^{{item.name}}_flags=" line="{{item.name}}_flags=\"{{item.flags}}\"" create="yes"
+  with_items:
+    - { name: 'sshd',   flags: '' }
+    - { name: 'unbound',  flags: '-c /etc/unbound.conf' }
+    - { name: 'ntpd',   flags: '-s' }
+    - { name: 'dhcpd',  flags: 'vether0' }
+    - { name: 'sndiod', flags: '' }
+    - { name: 'syslogd',  flags: '-u' }
+
+- name: Configure unbound
+  template: src='{{templates_folder}}/unbound.conf.j2' dest='/etc/unbound.conf' owner='root' group='wheel' mode='0644'
+
+- name: Configure NTP
+  template: src='{{templates_folder}}/ntpd.conf.j2' dest='/etc/ntpd.conf'
+
+- name: Copy sshd config
+  copy: src='{{files_folder}}/sshd_config' dest='/etc/ssh/sshd_config'
+
+- name: Copy ssh config
+  copy: src='{{files_folder}}/ssh_config' dest='/etc/ssh/ssh_config'
+
+- name: Configure Duo
+  template: src='{{templates_folder}}/login_duo.conf.j2' dest='/etc/login_duo.conf' owner='sshd' group='wheel' mode='0600'
+
+- name: Copy dhcpd configuration file
+  copy: src='{{files_folder}}/dhcpd.conf' dest='/etc/dhcpd.conf'

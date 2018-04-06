@@ -1,0 +1,55 @@
+---
+- name: Apply all available patches
+  command: /usr/sbin/syspatch
+  ignore_errors: yes # Fails when no patches avail. Bug reported
+
+- name: Installs common packages
+  openbsd_pkg: name="{{item}}" state='present'
+  environment:
+    PKG_PATH: "http://{{ openbsd_mirror }}/{{ openbsd_mirror_directory }}/packages/{{ architecture }}/"
+  with_items:
+    - 'vim--no_x11'
+    - 'wget'
+    - 'curl'
+    - 'zsh'
+    - 'wol'
+    - 'links'
+    - 'login_duo'
+
+- name: Create dev-src folder
+  file: state="directory" path="/dev-src" owner="root" group="wheel"
+
+- name: Copy makedev file
+  command: cp /dev/MAKEDEV /dev-src/MAKEDEV
+
+- name: Populate /dev-src
+  command: chdir="/dev-src" ./MAKEDEV all
+
+- name: Sets timezone to Europe/Berlin
+  file: state='link' src='/usr/share/zoneinfo/{{timezone}}' dest='/etc/localtime'
+
+- name: Sets keyboard type
+  copy: src='{{files_folder}}/kbdtype' dest='/etc/kbdtype' owner='root' group='wheel' mode='0644'
+
+- name: Redirect console to com0
+  lineinfile: dest='/etc/boot.conf' regexp='^set tty' line='set tty com0' create='yes'
+
+- name: Set com0 speed
+  lineinfile: dest='/etc/boot.conf' regexp='^stty com0' line='stty com0 115200' create='yes'
+
+- name: Allows logins from serial console
+  lineinfile: dest='/etc/ttys' regexp='^tty00' line='tty00   "/usr/libexec/getty std.115200" vt220   on  secure'
+
+- name: Set hostname
+  copy: src='{{files_folder}}/myname' dest='/etc/myname' owner='root' group='wheel' mode='0644'
+
+- name: Enable doas
+  copy: src='{{files_folder}}/doas.conf' dest='/etc/doas.conf' owner='root' group='wheel' mode='0600'
+
+- name: Define DNS resolvers
+  copy: src='{{files_folder}}/resolv.conf' dest='/etc/resolv.conf'
+
+# Small hack to get the colon, cf https://github.com/ansible/ansible/issues/1341
+- name: Forwards mail for root
+  lineinfile: dest='/etc/mail/aliases' regexp='^(#\ +)?root:' line="root{{':'}} {{email}}"
+
