@@ -12,16 +12,29 @@ server:
   access-control: 192.168.2.0/8 allow
   access-control: ::0/0 refuse
 
+  cache-max-ttl: 14400
+  cache-min-ttl: 600
+  do-tcp: yes
   hide-identity: yes
   hide-version: yes
+  minimal-responses: yes
+  prefetch: yes
+  qname-minimisation: yes
+  rrset-roundrobin: yes
+  ssl-upstream: yes
+  use-caps-for-id: yes
+  verbosity: 1
+  so-reuseport: yes
+
 
 remote-control:
   control-enable: no
   control-use-cert: no
   control-interface: /var/run/unbound.sock
 
+
 forward-zone:
   name: "."
 {% for nameserver in nameservers %}
-  forward-addr: {{ nameserver }}
+  forward-addr: {{ nameserver }}@853
 {% endfor %}
