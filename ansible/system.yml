@@ -37,6 +37,9 @@
 - name: Set com0 speed
   lineinfile: dest='/etc/boot.conf' regexp='^stty com0' line='stty com0 115200' create='yes'
 
+- name: Set lower timeout during boot
+  lineinfile: dest='/etc/boot.conf' regexp='^set timeout' line='set timeout 0' create='yes'
+
 - name: Allows logins from serial console
   lineinfile: dest='/etc/ttys' regexp='^tty00' line='tty00   "/usr/libexec/getty std.115200" vt220   on  secure'
 

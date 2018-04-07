@@ -2,15 +2,16 @@
 - hosts: all
   vars:
     nameservers: ["1.0.0.1"]
+    ansible_folder: "/tmp/ansible"
 
   tasks:
   - name: load variables
     include_vars: "/tmp/config.json"
 
-  - import_tasks: /tmp/ansible/system.yml
-  - import_tasks: /tmp/ansible/disk_setup.yml
-  - import_tasks: /tmp/ansible/services.yml
-  - import_tasks: /tmp/ansible/network.yml
-  - import_tasks: /tmp/ansible/user.yml
-  - import_tasks: /tmp/ansible/dtdns.yml
+  - import_tasks: "{{ ansible_folder }}/system.yml"
+  - import_tasks: "{{ ansible_folder }}/disk_setup.yml"
+  - import_tasks: "{{ ansible_folder }}/services.yml"
+  - import_tasks: "{{ ansible_folder }}/network.yml"
+  - import_tasks: "{{ ansible_folder }}/user.yml"
+  - import_tasks: "{{ ansible_folder }}/dtdns.yml"
 

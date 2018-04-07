@@ -3,10 +3,14 @@
   user: name='{{user}}' state='present' groups='wheel' shell='/usr/local/bin/zsh'
 
 - name: Adds SSH authorized key for the main user
-  authorized_key: user='{{user}}' key="{{files_folder}}/authorized_keys" key_options='from="192.168.1.0/24,127.0.0.1"'
+  authorized_key: user='{{user}}' key="{{item}}" key_options='from="192.168.1.0/24,127.0.0.1"'
+  with_file:
+    - "{{files_folder}}/authorized_keys"
 
 - name: Adds SSH authorized key for the main user
-  authorized_key: user='{{user}}' key="{{files_folder}}/authorized_keys" key_options='command="/usr/local/sbin/login_duo"'
+  authorized_key: user='{{user}}' key="{{item}}" key_options='command="/usr/local/sbin/login_duo"'
+  with_file:
+    - "{{files_folder}}/authorized_keys"
 
 - name: Create bin folder for the user
   file: path="/home/{{user}}/bin" state='directory' owner='{{user}}' group='{{user}}' mode='0755'
