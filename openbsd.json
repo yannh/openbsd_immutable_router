@@ -3,16 +3,18 @@
     {
       "type": "qemu",
       "accelerator": "kvm",
-      "boot_wait": "30s",
+      "boot_wait": "25s",
       "disk_interface": "virtio",
-      "disk_size": 2048,
+      "disk_size": 4096,
       "format": "raw",
       "headless": false,
       "iso_url": "http://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/{{user `architecture`}}/install63.iso",
       "iso_checksum_url": "https://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/{{user `architecture`}}/SHA256",
       "iso_checksum_type": "sha256",
       "qemuargs": [
-        ["-m", "1024m"]
+        ["-m", "1024m"],
+        ["-smp", "2"],
+        ["-k", "en-gb"]
       ],
       "shutdown_command": "halt -p",
       "ssh_username": "root",
@@ -43,7 +45,7 @@
         "Cannot determine prefetch area. Continue without verification = yes <enter>",
         "URL to autopartitioning template = http://{{ .HTTPIP }}:{{ .HTTPPort }}/autodisklabel<enter>",
         "EOF<enter>",
-        "install -af install.conf && reboot<enter>"
+        "install -af install.conf ; reboot<enter>"
         ]
     }
   ],

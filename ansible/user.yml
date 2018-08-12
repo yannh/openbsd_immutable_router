@@ -3,12 +3,7 @@
   user: name='{{user}}' state='present' groups='wheel' shell='/usr/local/bin/zsh'
 
 - name: Adds SSH authorized key for the main user
-  authorized_key: user='{{user}}' key="{{item}}" key_options='from="192.168.1.0/24,127.0.0.1"'
-  with_file:
-    - "{{files_folder}}/authorized_keys"
-
-- name: Adds SSH authorized key for the main user
-  authorized_key: user='{{user}}' key="{{item}}" key_options='command="/usr/local/sbin/login_duo"'
+  authorized_key: user='{{user}}' key="{{item}}"
   with_file:
     - "{{files_folder}}/authorized_keys"
 
@@ -23,4 +18,3 @@
 
 - name: Ensure wake on lan script is present
   copy: src='{{files_folder}}/wol.sh' dest='/home/{{user}}/bin/wol.sh' owner="{{user}}" group="{{user}}" mode='0755'
-

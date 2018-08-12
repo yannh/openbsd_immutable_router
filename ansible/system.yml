@@ -37,8 +37,8 @@
 - name: Set com0 speed
   lineinfile: dest='/etc/boot.conf' regexp='^stty com0' line='stty com0 115200' create='yes'
 
-- name: Set lower timeout during boot
-  lineinfile: dest='/etc/boot.conf' regexp='^set timeout' line='set timeout 0' create='yes'
+- name: Boot MP kernel
+  lineinfile: dest='/etc/boot.conf' regexp='^boot' line='boot hd0a:/bsd.mp' create='yes'
 
 - name: Allows logins from serial console
   lineinfile: dest='/etc/ttys' regexp='^tty00' line='tty00   "/usr/libexec/getty std.115200" vt220   on  secure'
@@ -52,7 +52,9 @@
 - name: Define DNS resolvers
   copy: src='{{files_folder}}/resolv.conf' dest='/etc/resolv.conf'
 
+- name: Starts DHCP on em0 later, once all disks are mounted
+  copy: content="#!/bin/ksh\ndhclient em0" dest="/etc/rc.local" mode="0555" owner="root" group="wheel"
+
 # Small hack to get the colon, cf https://github.com/ansible/ansible/issues/1341
 - name: Forwards mail for root
   lineinfile: dest='/etc/mail/aliases' regexp='^(#\ +)?root:' line="root{{':'}} {{email}}"
-

@@ -5,7 +5,7 @@
     - { name: 'sshd',   flags: '' }
     - { name: 'unbound',  flags: '-c /etc/unbound.conf' }
     - { name: 'ntpd',   flags: '-s' }
-    - { name: 'dhcpd',  flags: 'vether0 em1' }
+    - { name: 'dhcpd',  flags: 'em1 em2 vlan10' }
     - { name: 'sndiod', flags: '' }
     - { name: 'syslogd',  flags: '-u' }
 
