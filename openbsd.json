@@ -8,7 +8,7 @@
       "disk_size": 4096,
       "format": "raw",
       "headless": false,
-      "iso_url": "http://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/{{user `architecture`}}/install64.iso",
+      "iso_url": "http://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/{{user `architecture`}}/install65.iso",
       "iso_checksum_url": "https://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/{{user `architecture`}}/SHA256",
       "iso_checksum_type": "sha256",
       "qemuargs": [
