@@ -1,28 +1,7 @@
 {
   "builders": [
     {
-      "type": "qemu",
       "accelerator": "kvm",
-      "boot_wait": "25s",
-      "disk_interface": "virtio",
-      "disk_size": 4096,
-      "format": "raw",
-      "headless": false,
-      "iso_url": "http://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/{{user `architecture`}}/install65.iso",
-      "iso_checksum_url": "https://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/{{user `architecture`}}/SHA256",
-      "iso_checksum_type": "sha256",
-      "qemuargs": [
-        ["-m", "1024m"],
-        ["-smp", "2"],
-        ["-k", "en-gb"]
-      ],
-      "shutdown_command": "halt -p",
-      "ssh_username": "root",
-      "ssh_password": "{{user `root_password`}}",
-      "ssh_port": 22,
-      "ssh_wait_timeout": "1200s",
-      "vm_name": "{{user `hostname`}}",
-      "http_directory": "packer_http",
       "boot_command": [
         "S<enter>",
         "cat <<EOF >>install.conf<enter>",
@@ -46,41 +25,84 @@
         "URL to autopartitioning template = http://{{ .HTTPIP }}:{{ .HTTPPort }}/autodisklabel<enter>",
         "EOF<enter>",
         "install -af install.conf ; reboot<enter>"
+      ],
+      "boot_wait": "25s",
+      "disk_interface": "virtio",
+      "disk_size": "4096M",
+      "format": "raw",
+      "headless": false,
+      "http_directory": "packer_http",
+      "iso_checksum": "file:https://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/{{user `architecture`}}/SHA256",
+      "iso_url": "http://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/{{user `architecture`}}/install67.iso",
+      "qemuargs": [
+        [
+          "-m",
+          "1024m"
+        ],
+        [
+          "-smp",
+          "2"
+        ],
+        [
+          "-k",
+          "en-gb"
+        ],
+        [
+          "-display",
+          "sdl"
         ]
+      ],
+      "shutdown_command": "halt -p",
+      "ssh_password": "{{user `root_password`}}",
+      "ssh_port": 22,
+      "ssh_timeout": "1200s",
+      "ssh_username": "root",
+      "type": "qemu",
+      "vm_name": "{{user `hostname`}}"
     }
   ],
   "provisioners": [
     {
-      "type": "shell",
-      "environment_vars": ["PKG_PATH=http://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/packages/{{user `architecture`}}/"],
-      "inline": ["pkg_add ansible python%2.7", "rm -f /usr/bin/python", "ln -s /usr/local/bin/python2.7 /usr/bin/python"]
+      "environment_vars": [
+        "PKG_PATH=http://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/packages/{{user `architecture`}}/"
+      ],
+      "inline": [
+        "pkg_add ansible python%2.7",
+        "rm -f /usr/bin/python",
+        "ln -s /usr/local/bin/python2.7 /usr/bin/python"
+      ],
+      "type": "shell"
     },
     {
-      "type": "file",
+      "destination": "/tmp",
       "source": "./files",
-      "destination": "/tmp"
+      "type": "file"
     },
     {
-      "type": "file",
+      "destination": "/tmp",
       "source": "./templates",
-      "destination": "/tmp"
+      "type": "file"
     },
     {
-      "type": "file",
+      "destination": "/tmp/config.json",
       "source": "config.json",
-      "destination": "/tmp/config.json"
+      "type": "file"
     },
     {
-      "type": "ansible-local",
-      "playbook_file": "provision.yml",
-      "playbook_dir": "ansible",
-      "staging_directory": "/tmp/ansible",
       "clean_staging_directory": true,
-      "extra_arguments": ["--diff"]
+      "extra_arguments": [
+        "--diff"
+      ],
+      "playbook_dir": "ansible",
+      "playbook_file": "provision.yml",
+      "staging_directory": "/tmp/ansible",
+      "type": "ansible-local"
     },
     {
-      "type": "shell",
-      "inline": ["rm -rf /root/.ansible /root/.ssh"]
+      "inline": [
+        "rm -rf /root/.ansible /root/.ssh"
+      ],
+      "type": "shell"
     }
   ]
 }

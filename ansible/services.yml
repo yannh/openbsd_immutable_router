@@ -21,8 +21,5 @@
 - name: Copy ssh config
   copy: src='{{files_folder}}/ssh_config' dest='/etc/ssh/ssh_config'
 
-- name: Configure Duo
-  template: src='{{templates_folder}}/login_duo.conf.j2' dest='/etc/login_duo.conf' owner='sshd' group='wheel' mode='0600'
-
 - name: Copy dhcpd configuration file
   copy: src='{{files_folder}}/dhcpd.conf' dest='/etc/dhcpd.conf'
