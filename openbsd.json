@@ -67,9 +67,7 @@
         "PKG_PATH=http://{{user `openbsd_mirror`}}/{{user `openbsd_mirror_directory`}}/packages/{{user `architecture`}}/"
       ],
       "inline": [
-        "pkg_add ansible python%2.7",
-        "rm -f /usr/bin/python",
-        "ln -s /usr/local/bin/python2.7 /usr/bin/python"
+        "pkg_add ansible python%3.8"
       ],
       "type": "shell"
     },
@@ -91,7 +89,9 @@
     {
       "clean_staging_directory": true,
       "extra_arguments": [
-        "--diff"
+        "--diff",
+	"-e",
+	"'ansible_python_interpreter=/usr/local/bin/python3'"
       ],
       "playbook_dir": "ansible",
       "playbook_file": "provision.yml",
